@@ -1,7 +1,7 @@
 const pollTitle = document.getElementById('poll__title');
 const answersList = document.getElementById('poll__answers');
 
-let xhr = new XMLHttpRequest();
+const xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://netology-slow-rest.herokuapp.com/poll.php');
 xhr.send();
 

@@ -1,32 +1,18 @@
 const editor = document.getElementById('editor');
-const clearKey = document.getElementById('clearKey');
-const clearAll = document.getElementById('clearAll');
+const clear = document.getElementById('clear');
 
-editor.addEventListener('input', saveText);
-window.addEventListener('load', printTextFromLocalStorage);
-clearKey.addEventListener('click', clear);
-clearAll.addEventListener('click', clear);
-
-
-function saveText(event) {
-	localStorage.text = editor.value;
-}
-
-function printTextFromLocalStorage(event) {
+window.addEventListener('load', function () {
 	if (localStorage.text) {
-		editor.value = localStorage.text;
+		editor.value = localStorage.getItem('text');
 	}
-}
+	editor.addEventListener('input', function () {
+		localStorage.setItem('text', editor.value);
+	});
+});
 
-function clear(event) {
-
+clear.addEventListener('click', function (event) {
 	event.preventDefault();
-
-	if (event.target === clearKey) {
-		localStorage.removeItem('text');
-		editor.value = '';
-	} else {
-		localStorage.clear();
-		editor.value = '';
-	}
-}
+	localStorage.removeItem('text');
+	localStorage.clear();
+	editor.value = '';
+});

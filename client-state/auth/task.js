@@ -1,52 +1,42 @@
-const formDiv = document.getElementById('signin');
-formDiv.classList.add('signin_active');
-
+const signin = document.getElementById('signin');
+const signinForm = document.getElementById('signin__form');
 const welcome = document.getElementById('welcome');
 const signinBtn = document.getElementById('signin__btn');
-const userId = document.getElementById('user_id');
 
-signinBtn.addEventListener('click', sendForm);
+signin.classList.add('signin_active');
 
-function sendForm(event) {
+var xhr = new XMLHttpRequest();
+
+signinBtn.addEventListener('click', function () {
 
 	event.preventDefault();
+	const formData = new FormData(signinForm);
 
-	const form = document.getElementById('signin__form');
-	const formData = new FormData(form);
-
-	const xhr = new XMLHttpRequest();
 	xhr.open('POST', 'https://netology-slow-rest.herokuapp.com/auth.php');
-	xhr.addEventListener('readystatechange', showData);
 	xhr.send(formData);
 
-	function showData(event) {
+	xhr.onreadystatechange = function () {
 
-		if (xhr.readyState === 4 && xhr.status === 200) {
+		if (this.readyState == xhr.DONE && this.status == 200) {
+			const json = JSON.parse(xhr.responseText);
 
-			const response = JSON.parse(xhr.responseText);
+			if (json.success) {
 
-			if (response.success) {
-
-				localStorage.userId = response.user_id;
-
-				formDiv.classList.remove('signin_active');
+				localStorage.userId = json.user_id;
+				signin.classList.remove('signin_active');
 				welcome.classList.add('welcome_active');
-				userId.innerText = response.user_id;
-
-			} else {
-				alert('Неверный логин/пароль');
+				welcome.innerHTML = `
+                  Добро пожаловать, пользователь #<span id='${json.user_id}'>${json.user_id}</span>                  
+                  <button class='btn' id='logout__btn' onclick='localStorage.clear(); window.location.reload();'>Выйти</button>
+                `;
 			}
+			else {
+				signinForm.reset();
+				alert('Неверные логин/пароль');
+			}
+		} else {
+			return;
 		}
+
 	}
-}
-
-function init() {
-
-	if (localStorage.userId) {
-		formDiv.classList.remove('signin_active');
-		welcome.classList.add('welcome_active');
-		userId.innerText = localStorage.userId;
-	}
-}
-
-init();
+});

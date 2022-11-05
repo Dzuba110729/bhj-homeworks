@@ -1,14 +1,5 @@
-const popup = document.getElementById('subscribe-modal');
-const close = popup.querySelector('.modal__close');
-
-window.addEventListener('load', checkCookie);
-close.addEventListener('click', closePopup);
-
-function checkCookie(event) {
-	if (!getCookie('isClosed')) {
-		popup.classList.add('modal_active');
-	}
-}
+const subscribeModal = document.getElementById('subscribe-modal');
+const modalClose = subscribeModal.querySelector('.modal__close');
 
 const getCookie = (name) => {
 	const value = "; " + document.cookie;
@@ -21,10 +12,14 @@ const getCookie = (name) => {
 	}
 }
 
-function closePopup(event) {
+document.addEventListener('DOMContentLoaded', function () {
+	if (getCookie('popupClosed') != 'yes') {
+		subscribeModal.classList.add('modal_active');
+	}
+});
 
+modalClose.addEventListener('click', function (event) {
 	event.preventDefault();
-
-	document.cookie = 'isClosed=true';
-	popup.classList.remove('modal_active');
-}
+	document.cookie = 'popupClosed=yes';
+	subscribeModal.classList.remove('modal_active');
+});

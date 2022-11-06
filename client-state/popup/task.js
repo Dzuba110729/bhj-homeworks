@@ -1,25 +1,12 @@
-const subscribeModal = document.getElementById('subscribe-modal');
-const modalClose = subscribeModal.querySelector('.modal__close');
+const modal = document.querySelector('#subscribe-modal');
 
-const getCookie = (name) => {
-	const value = "; " + document.cookie;
-	let parts = value.split("; " + name + "=");
-	if (parts.length === 2) {
-		return parts
-			.pop()
-			.split(";")
-			.shift();
-	}
+if (document.cookie !== 'modalClosed=true') {
+	modal.classList.add('modal_active');
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-	if (getCookie('popupClosed') != 'yes') {
-		subscribeModal.classList.add('modal_active');
-	}
-});
+const modalCloseBtn = document.querySelector('.modal__close');
 
-modalClose.addEventListener('click', function (event) {
-	event.preventDefault();
-	document.cookie = 'popupClosed=yes';
-	subscribeModal.classList.remove('modal_active');
-});
+modalCloseBtn.addEventListener('click', e => {
+	modal.classList.remove('modal_active');
+	document.cookie = 'modalClosed=true';
+}); 

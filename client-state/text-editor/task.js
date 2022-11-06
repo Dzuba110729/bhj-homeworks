@@ -1,18 +1,24 @@
-const editor = document.getElementById('editor');
-const clear = document.getElementById('clear');
+const editor = document.querySelector('#editor');
+const deleteBtn = document.querySelector('#delete');
 
-window.addEventListener('load', function () {
-	if (localStorage.text) {
-		editor.value = localStorage.getItem('text');
+function fillFromLS() {
+	if (localStorage.cashedText) {
+		editor.value = localStorage.cashedText;
 	}
-	editor.addEventListener('input', function () {
-		localStorage.setItem('text', editor.value);
-	});
-});
+}
 
-clear.addEventListener('click', function (event) {
-	event.preventDefault();
-	localStorage.removeItem('text');
-	localStorage.clear();
+function editorCashe() {
+	const editorValue = editor.value;
+	localStorage.setItem('cashedText', editorValue);
+}
+
+function clearTextArea(e) {
+	e.preventDefault();
 	editor.value = '';
+	editorCashe();
+}
+
+editor.addEventListener('change', editorCashe);
+deleteBtn.addEventListener('click', e => {
+	clearTextArea(e);
 });

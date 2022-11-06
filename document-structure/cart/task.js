@@ -1,69 +1,49 @@
-const addButtons = document.getElementsByClassName('product__add');
-const dcrButtons = document.getElementsByClassName('product__quantity-control_dec');
-const incButtons = document.getElementsByClassName('product__quantity-control_inc');
+const productQuantityControls = document.querySelectorAll('.product__quantity-control');
+const addToCartButtons = document.querySelectorAll('.product__add');
 
-function removeProduct() {
-	const div = document.querySelector('.cart__product')
-	div.remove();
-	target.childElement.remove();
-}
+const cart = document.querySelector('.cart__products');
 
-function addItem() {
-	const newItem = this.closest('div.product');
-	const value = Number(newItem.getElementsByClassName('product__quantity-value')[0].textContent);
-	const image = newItem.getElementsByClassName('product__image')[0].src;
-	const dataID = newItem.getAttribute('data-id');
-	const cart = document.getElementsByClassName('cart__products')[0];
-
-	function addNewItem() {
-		const newItemDiv =
-			`<div class="cart__product" data-id=${dataID}>
-        <img class="cart__product-image" src=${image}>
-        <div class="cart__product-count">${value}</div>
-        <div class="product__delete">Удалить</div>
-        </div>
-      `;
-		cart.insertAdjacentHTML('afterBegin', newItemDiv);
-		cart.getElementsByClassName('product__delete')[0].onclick = removeProduct
-	}
-
-	const cartProduct = cart.getElementsByClassName('cart__product');
-	let cartProdId = [];
-	for (let i = 0; i < cartProduct.length; i++) {
-		cartProdId[i] = cartProduct[i].getAttribute('data-id');
-	}
-	if (cartProdId.indexOf(dataID) !== -1) {
-		for (let i = 0; i < cartProdId.length; i++) {
-			if (cartProdId[i] === dataID) {
-				cartProduct[i].querySelector('.cart__product-count').textContent = Number(cartProduct[i].querySelector('.cart__product-count').textContent) + value;
+//product quantity controls change
+productQuantityControls.forEach(productQuantityControl => {
+	productQuantityControl.addEventListener('click', e => {
+		if (e.target.classList.contains('product__quantity-control_dec')) {
+			if (Number(e.target.parentElement.querySelector('.product__quantity-value').textContent) >= 2) {
+				--e.target.parentElement.querySelector('.product__quantity-value').textContent;
 			}
-		}
+		};
+		if (e.target.classList.contains('product__quantity-control_inc')) {
+			++e.target.parentElement.querySelector('.product__quantity-value').textContent;
+		};
+	})
+})
+
+function createCartItem(id, quantity, imageUrl) {
+	const newCartItem = document.createElement('div');
+	const itemHTMLContent = `<div class="cart__product" data-id="${id}"><img class="cart__product-image" src="${imageUrl}"><div class="cart__product-count">${quantity}</div>`;
+	cart.appendChild(newCartItem);
+	newCartItem.outerHTML = itemHTMLContent;
+}
+
+function modifyCartItem(product, quantity) {
+	product.querySelector('.cart__product-count').textContent = Number(product.querySelector('.cart__product-count').textContent) + Number(quantity);
+}
+
+function addToCart(product) {
+	product.id = product.dataset.id;
+	product.quantity = product.querySelector('.product__quantity-value').textContent;
+	product.image = product.querySelector('.product__image').src;
+
+	//check if product in cart to choose action
+	if (cart.children.length > 0 && Array.from(cart.children).find(elem => elem.dataset.id === product.id)) {
+		modifyCartItem(Array.from(cart.children).find(elem => elem.dataset.id === product.id), product.quantity);
+	} else {
+		createCartItem(product.id, product.quantity, product.image);
 	}
-	else {
-		addNewItem();
-	}
 }
 
-for (let addButton of addButtons) {
-	addButton.addEventListener('click', addItem);
-}
-
-function dcrQuantity() {
-	let counter = this.nextElementSibling;
-	if (Number(counter.textContent) > 1) {
-		counter.textContent = Number(counter.textContent) - 1;
-	}
-}
-
-function incQuantity() {
-	let counter = this.previousElementSibling;
-	counter.textContent = Number(counter.textContent) + 1;
-}
-
-for (let decreaseBtn of dcrButtons) {
-	decreaseBtn.addEventListener('click', dcrQuantity);
-}
-
-for (let increaseBtn of incButtons) {
-	increaseBtn.addEventListener('click', incQuantity);
-}
+//product add to cart button function
+addToCartButtons.forEach(addToCartButton => {
+	addToCartButton.addEventListener('click', e => {
+		addToCart(e.target.closest('.product'));
+	})
+})

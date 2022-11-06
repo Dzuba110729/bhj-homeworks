@@ -1,20 +1,53 @@
-const taskInput = document.getElementById('task__input');
-const tasksAdd = document.getElementById('tasks__add');
-const taskList = document.getElementById('tasks__list');
+const taskInput = document.querySelector('#task__input');
+const btnTaskAdd = document.querySelector('#tasks__add');
+const taskList = document.querySelector('#tasks__list');
+let savedTaskArray = [];
 
-tasksAdd.addEventListener('click', function (event) {
+function fillSavedTasks() {
+    savedTaskArray = JSON.parse(localStorage.getItem('savedTaskArray'));
+    savedTaskArray.forEach(savedTask => {
+        createTask(savedTask);
+    });
+}
 
-	if (taskInput.value === '') return;
+function createTask(taskText) {
+    //create task
+    const taskNode = document.createElement('div');
+    taskList.appendChild(taskNode);
+    taskNode.outerHTML = `<div class="task"><div class="task__title">${taskText}</div><a href="#" class="task__remove">&times;</a></div>`;
+}
 
-	taskList.innerHTML += `
-    <div class="task">
-        <div class="task__title">
-            ${taskInput.value}
-        </div>
-        <a href="#" class="task__remove" onclick="this.closest('.task').outerHTML = '';">&times;</a>
-    </div>        
-    `;
+function removeTask(taskElement) {
+    //remove task from local storage
+    const taskText = taskElement.firstChild.textContent;
+    const taskIndex = savedTaskArray.findIndex(item => item === taskText);
+    savedTaskArray.splice(taskIndex, 1);
+    localStorage.setItem('savedTaskArray', JSON.stringify(savedTaskArray));
+    //remove task
+    taskElement.remove();
+}
 
-	taskInput.value = '';
-	event.preventDefault();
+if (localStorage.getItem('savedTaskArray')) {
+    fillSavedTasks();
+}
+
+//activate remove buttons
+taskList.addEventListener('click', e => {
+    if (e.target.classList.contains('task__remove')) {
+        e.preventDefault();
+        removeTask(e.target.parentElement);
+    }
+})
+
+//add task from input
+btnTaskAdd.addEventListener('click', e => {
+    e.preventDefault();
+    if (taskInput.value.trim() !== '') {
+        createTask(taskInput.value);
+        //save task to local storage
+        savedTaskArray.push(taskInput.value);
+        localStorage.setItem('savedTaskArray', JSON.stringify(savedTaskArray));
+    }
+    //clear input
+    taskInput.value = '';
 });

@@ -1,42 +1,55 @@
-const signin = document.getElementById('signin');
-const signinForm = document.getElementById('signin__form');
-const welcome = document.getElementById('welcome');
-const signinBtn = document.getElementById('signin__btn');
+const userId = document.querySelector('#user_id');
+const signIn = document.querySelector('#signin');
+const form = document.forms[0];
+const formData = new FormData(form);
+const requestTargetUrl = 'https://netology-slow-rest.herokuapp.com/auth.php';
+const loginButton = form.querySelector('#signin__btn');
+const welcomer = document.querySelector('#welcome');
 
-signin.classList.add('signin_active');
+if (localStorage.user_id) {
+	login(localStorage.user_id);
+}
 
-var xhr = new XMLHttpRequest();
-
-signinBtn.addEventListener('click', function () {
-
-	event.preventDefault();
-	const formData = new FormData(signinForm);
-
-	xhr.open('POST', 'https://netology-slow-rest.herokuapp.com/auth.php');
+loginButton.addEventListener('click', e => {
+	e.preventDefault();
+	const xhr = new XMLHttpRequest();
+	xhr.open('POST', requestTargetUrl);
+	xhr.responseType = 'json';
+	formData.append('login', form.login.value);
+	formData.append('password', form.password.value);
 	xhr.send(formData);
-
-	xhr.onreadystatechange = function () {
-
-		if (this.readyState == xhr.DONE && this.status == 200) {
-			const json = JSON.parse(xhr.responseText);
-
-			if (json.success) {
-
-				localStorage.userId = json.user_id;
-				signin.classList.remove('signin_active');
-				welcome.classList.add('welcome_active');
-				welcome.innerHTML = `
-                  Добро пожаловать, пользователь #<span id='${json.user_id}'>${json.user_id}</span>                  
-                  <button class='btn' id='logout__btn' onclick='localStorage.clear(); window.location.reload();'>Выйти</button>
-                `;
-			}
-			else {
-				signinForm.reset();
-				alert('Неверные логин/пароль');
-			}
-		} else {
-			return;
+	xhr.addEventListener('readystatechange', function () {
+		if (xhr.readyState === xhr.DONE) {
+			responseHandler(xhr);
 		}
-
-	}
+	});
 });
+
+function responseHandler(xhr) {
+	console.log(xhr.response);
+	if (xhr.response.success === true) {
+		login(xhr.response.user_id);
+	}
+}
+
+function login(user_id) {
+	signIn.classList.remove('signin_active');
+	userId.textContent = user_id;
+	welcomer.classList.add('welcome_active');
+	localStorage.setItem('user_id', user_id);
+	logOut();
+}
+
+function logOut() {
+	const logOutButton = document.createElement('button');
+	logOutButton.classList.add('logout__button');
+	logOutButton.textContent = 'Выйти';
+	welcomer.insertAdjacentElement('afterend', logOutButton);
+
+	logOutButton.addEventListener('click', e => {
+		welcomer.classList.remove('welcome_active');
+		signIn.classList.add('signin_active');
+		logOutButton.remove();
+		localStorage.clear();
+	})
+}

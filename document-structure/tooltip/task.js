@@ -1,24 +1,21 @@
-const links = document.querySelectorAll('.has-tooltip');
-const hint = document.querySelector('.tooltip');
+const hasTooltipLinks = document.querySelectorAll('.has-tooltip');
 
-for (let link of links) {
-	link.addEventListener('click', showHint);
+function closeOpenedToolTips() {
+	let openedToolTips = document.querySelectorAll('.tooltip_active');
+	openedToolTips.forEach(toolTip => toolTip.classList.remove('tooltip_active'));
 }
 
-hint.addEventListener('click', () => hint.classList.remove('tooltip_active'));
+hasTooltipLinks.forEach(toolTipLink => {
+	toolTipLink.addEventListener('click', e => {
+		e.preventDefault();
+		closeOpenedToolTips();
 
-function showHint(event) {
+		let toolTipHTML = `<div class="tooltip" style="left: ${Math.round(e.target.getBoundingClientRect().left) + 'px'}; top: ${Math.round(e.target.getBoundingClientRect().bottom) + 'px'}">${toolTipLink.title}</div>`;
+		toolTipLink.insertAdjacentHTML('afterend', toolTipHTML);
+		toolTipLink.nextElementSibling.classList.add('tooltip_active');
+	});
+});
 
-	event.preventDefault();
-
-	const tooltip = document.querySelector('.tooltip_active');
-
-	if (tooltip) {
-		tooltip.classList.remove('tooltip_active');
-	}
-
-	hint.classList.add('tooltip_active');
-	hint.innerText = event.target.title;
-	hint.style.top = event.target.getBoundingClientRect().top + 20 + 'px';
-	hint.style.left = event.target.getBoundingClientRect().left + 'px';
-}
+window.addEventListener('scroll', function () {
+	closeOpenedToolTips();
+});
